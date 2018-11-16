@@ -1,7 +1,7 @@
 package com.invision.server.repository.model;
 
 import com.invision.server.model.SwitchState;
-import org.hamcrest.Matchers;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
@@ -20,10 +21,10 @@ import static org.junit.Assert.*;
 public class SwitchRepositoryTest {
 
     @Autowired
-    SwitchRepository switchRepository;
+    private SwitchRepository switchRepository;
 
     @Autowired
-    MongoTemplate mongoTemplate;
+    private MongoTemplate mongoTemplate;
 
     @Test
     public void shouldInsertSwitchRecord() {
@@ -34,5 +35,21 @@ public class SwitchRepositoryTest {
 
         assertThat(switches, hasSize(1));
         assertThat(switches, contains(sw));
+    }
+
+    @Test
+    public void shouldFindById() {
+        Switch sw = new Switch("1", SwitchState.ON, "192.168.1.1", "TestDevice", 12345L);
+        mongoTemplate.insert(sw);
+
+        Optional<Switch> switchOptional = switchRepository.findById("1");
+
+        assertTrue(switchOptional.isPresent());
+        assertEquals(sw, switchOptional.get());
+    }
+
+    @After
+    public void cleanUp() {
+        mongoTemplate.dropCollection(Switch.class);
     }
 }
