@@ -28,9 +28,10 @@ public class SwitchService {
         this.restTemplate = restTemplate;
     }
 
-    public void registerSwitch(SwitchDetails sw, String ip) {
+    public boolean registerSwitch(SwitchDetails sw, String ip) {
         Optional<Switch> switchById = switchRepository.findById(sw.getId());
-        if (switchById.isPresent()) {
+        boolean isExistingSwitch = switchById.isPresent();
+        if (isExistingSwitch) {
             Switch registeredSwitch = switchById.get();
             registeredSwitch.setState(sw.getState());
             registeredSwitch.setIpAddress(ip);
@@ -39,6 +40,7 @@ public class SwitchService {
         } else {
             switchRepository.insert(toSwitch(sw, ip));
         }
+        return isExistingSwitch;
     }
 
     public void changeSwitchState(String switchId, SwitchState state) {
@@ -68,6 +70,6 @@ public class SwitchService {
     }
 
     private String updatePhysicalSwitch(String ip, SwitchState state) {
-        return restTemplate.postForEntity(String.format(SWITCH_URL, ip, state), null, String.class).getBody();
+        return restTemplate.postForEntity(String.format(SWITCH_URL, ip, state.name().toLowerCase()), null, String.class).getBody();
     }
 }

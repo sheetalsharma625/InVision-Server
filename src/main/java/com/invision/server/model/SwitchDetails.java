@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SwitchDetails {
-    private String Id;
+    private String id;
     private SwitchState state;
 }
 

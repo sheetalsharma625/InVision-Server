@@ -1,5 +1,7 @@
 package com.invision.server.controller;
 
+import com.invision.server.controller.model.Response;
+import com.invision.server.controller.model.Switches;
 import com.invision.server.model.SwitchDetails;
 import com.invision.server.model.SwitchState;
 import com.invision.server.service.SwitchService;
@@ -17,22 +19,25 @@ public class SwitchController {
     @Autowired
     private SwitchService switchService;
 
-    @PostMapping("/switches/{switchId}")
-    public ResponseEntity<String> registerSwitch(@PathVariable String switchId, @RequestBody SwitchDetails switchDetails, HttpServletRequest request) {
+    @PostMapping("/switches")
+    public ResponseEntity<Response> registerSwitch(@RequestBody SwitchDetails switchDetails,
+                                                   HttpServletRequest request) {
         String ipAddress = request.getRemoteAddr();
-        switchService.registerSwitch(switchDetails, ipAddress);
-        return ResponseEntity.status(HttpStatus.OK).body(switchId + " Registered");
+        boolean isExistingSwitch = switchService.registerSwitch(switchDetails, ipAddress);
+        return ResponseEntity.status(HttpStatus.OK).body(isExistingSwitch ?
+                new Response("Switch updated with ID:" + switchDetails.getId()) :
+                new Response("Switch registered with ID:" + switchDetails.getId()));
     }
 
     @PostMapping("/switches/{switchId}/state/{state}")
     public ResponseEntity<String> changeSwitchState(@PathVariable String switchId, @PathVariable String state) {
-        switchService.changeSwitchState(switchId, SwitchState.valueOf(state));
+            switchService.changeSwitchState(switchId, SwitchState.valueOf(state.toUpperCase()));
         return ResponseEntity.status(HttpStatus.OK).body(switchId + " turned " + state);
     }
 
     @GetMapping("/switches")
-    public ResponseEntity<List<SwitchDetails>> getAllSwitches() {
+    public ResponseEntity<Switches> getAllSwitches() {
         List<SwitchDetails> switchDetails = switchService.getAllSwitches();
-        return ResponseEntity.status(HttpStatus.OK).body(switchDetails);
+        return ResponseEntity.status(HttpStatus.OK).body(new Switches(switchDetails));
     }
 }
