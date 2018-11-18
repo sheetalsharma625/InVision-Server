@@ -19,6 +19,7 @@ public class SwitchController {
     @Autowired
     private SwitchService switchService;
 
+    @CrossOrigin(origins = "*")
     @PostMapping("/switches")
     public ResponseEntity<Response> registerSwitch(@RequestBody SwitchDetails switchDetails,
                                                    HttpServletRequest request) {
@@ -29,12 +30,14 @@ public class SwitchController {
                 new Response("Switch registered with ID:" + switchDetails.getId()));
     }
 
+    @CrossOrigin(origins = "*")
     @PostMapping("/switches/{switchId}/state/{state}")
     public ResponseEntity<String> changeSwitchState(@PathVariable String switchId, @PathVariable String state) {
             switchService.changeSwitchState(switchId, SwitchState.valueOf(state.toUpperCase()));
         return ResponseEntity.status(HttpStatus.OK).body(switchId + " turned " + state);
     }
 
+    @CrossOrigin(origins = "*")
     @GetMapping("/switches")
     public ResponseEntity<Switches> getAllSwitches() {
         List<SwitchDetails> switchDetails = switchService.getAllSwitches();
